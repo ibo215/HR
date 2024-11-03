@@ -1,0 +1,6 @@
+DepartmentProfile
+EmployeeProfile
+SalaryTierProfile
+
+ISalaryTierRepository
+IDepartmentRepository
