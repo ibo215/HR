@@ -4,3 +4,131 @@ SalaryTierProfile
 
 ISalaryTierRepository
 IDepartmentRepository
+
+
+
+=============
+
+DepartmentForUpdate
+DepartmentForAdd
+DepartmentForPreview
+
+EmployeeForUpdate
+EmployeeForAdd
+EmployeeForPreview
+
+SalaryTierForUpdate
+SalaryTierForAdd
+SalaryTierForPreview
+
+=============
+
+
+Department
+SalaryTier
+Employee
+=============
+
+áÅÖÇİÉ ŞÓã ÌÏíÏ (Department):
+
+
+
+{
+    "DepartmentName": "Marketing",
+    "IsActive": true
+}
+áÅÖÇİÉ ãÓÊæì ÑÇÊÈ ÌÏíÏ (SalaryTier):
+
+
+
+{
+    "TierName": "Lead",
+    "SalaryAmount": 9000,
+    "IsActive": true
+}
+áÅÖÇİÉ ãæÙİ ÌÏíÏ (Employee):
+
+
+
+{
+    "Name": "Eve Adams",
+    "Position": "Marketing Specialist",
+    "IsActive": true,
+    "DepartmentId": 4,      // Assuming 4 is the ID of the newly added Marketing department
+    "SalaryTierId": 2       // Mid-Level salary tier
+}
+ÈíÇäÇÊ ÇáÊÚÏíá (PUT)
+áÊÍÏíË ŞÓã ãæÌæÏ (Department):
+
+
+
+{
+    "DepartmentId": 1,
+    "DepartmentName": "Human Resources",
+    "IsActive": true
+}
+áÊÍÏíË ãÓÊæì ÑÇÊÈ ãæÌæÏ (SalaryTier):
+
+
+
+{
+    "SalaryTierId": 2,
+    "TierName": "Intermediate",
+    "SalaryAmount": 5200,
+    "IsActive": true
+}
+áÊÍÏíË ÈíÇäÇÊ ãæÙİ (Employee):
+
+
+
+{
+    "EmployeeId": 2,
+    "Name": "Bob Johnson",
+    "Position": "Software Engineer",
+    "IsActive": true,
+    "DepartmentId": 2,
+    "SalaryTierId": 2
+}
+
+
+==========================
+
+// Get deleted departments
+[HttpGet("Get-Deleted-Departments")]
+public async Task<ActionResult<IEnumerable<Department>>> GetDeletedDepartments()
+{
+    var deletedDepartments = await _context.Departments
+        .Where(d => !d.IsActive)
+        .ToListAsync();
+    
+    return Ok(deletedDepartments);
+}
+
+==========================
+// Get deleted salary tiers
+[HttpGet("Get-Deleted-SalaryTiers")]
+public async Task<ActionResult<IEnumerable<SalaryTierForPreview>>> GetDeletedSalaryTiers()
+{
+    var deletedSalaryTiers = await _context.SalaryTiers
+        .Where(st => !st.IsActive)
+        .ToListAsync();
+
+    var deletedSalaryTierDtos = _mapper.Map<IEnumerable<SalaryTierForPreview>>(deletedSalaryTiers);
+    return Ok(deletedSalaryTierDtos);
+}
+
+==========================
+// Get deleted employees
+[HttpGet("Get-Deleted-Employees")]
+public async Task<ActionResult<IEnumerable<Employee>>> GetDeletedEmployees()
+{
+    var deletedEmployees = await _context.Employees
+        .Where(e => !e.IsActive)
+        .ToListAsync();
+    
+    return Ok(deletedEmployees);
+}
+
+==========================
+==========================
+==========================

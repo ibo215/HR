@@ -1,6 +1,6 @@
 ﻿using Domain;
 using HR.Contexts;
-using HR.Services;
+using HR.DTOs.SalaryTierDTOs;
 using Microsoft.EntityFrameworkCore;
 
 namespace HR.Repositoreies
@@ -22,6 +22,18 @@ namespace HR.Repositoreies
         public async Task<SalaryTier> GetSalaryTierByIdAsync(int id)
         {
             return await _context.SalaryTiers.Where(t => t.IsActive).FirstOrDefaultAsync(t =>t.SalaryTierId == id);
+        }
+
+
+        public async Task<IEnumerable<SalaryTier>> GetSalaryReportAsync()
+        {
+            return await _context.SalaryTiers.ToListAsync();
+        }
+        public async Task<IEnumerable<SalaryTier>> GetDeletedSalaryTiersAsync()
+        {
+            return await _context.SalaryTiers
+                .Where(st => !st.IsActive)
+                .ToListAsync();
         }
 
         public async Task AddSalaryTierAsync(SalaryTier salaryTier)

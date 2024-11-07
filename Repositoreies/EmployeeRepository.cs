@@ -1,6 +1,5 @@
 ﻿using Domain;
 using HR.Contexts;
-using HR.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace HR.Repositoreies
@@ -16,15 +15,27 @@ namespace HR.Repositoreies
 
         public async Task<IEnumerable<Employee>> GetAllEmployeesAsync()
         {
-            return await _context.Employees.Where(e => e.IsActive).Include(e => e.Department).Include(e => e.SalaryTier).ToListAsync();
+            return await _context.Employees
+                .Where(e => e.IsActive)
+                .Include(e => e.Department)
+                .Include(e => e.SalaryTier)
+                .ToListAsync();
         }
 
         public async Task<Employee> GetEmployeeByIdAsync(int id)
         {
-            return await _context.Employees.Where(e => e.IsActive).Include(e => e.Department).Include(e => e.SalaryTier)
-                                           .FirstOrDefaultAsync(e => e.EmployeeId == id);
+            return await _context.Employees
+                .Where(e => e.IsActive)
+                .Include(e => e.Department)
+                .Include(e => e.SalaryTier)
+                .FirstOrDefaultAsync(e => e.EmployeeId == id);
         }
-
+        public async Task<IEnumerable<Employee>> GetDeletedEmployeesAsync()
+        {
+            return await _context.Employees
+                .Where(e => !e.IsActive)
+                .ToListAsync();
+        }
         public async Task AddEmployeeAsync(Employee employee)
         {
             await _context.Employees.AddAsync(employee);
@@ -46,6 +57,7 @@ namespace HR.Repositoreies
                 await _context.SaveChangesAsync();
             }
         }
-    }
+
+        }
 
 }

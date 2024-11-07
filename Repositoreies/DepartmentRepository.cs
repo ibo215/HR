@@ -1,6 +1,5 @@
 ﻿using Domain;
 using HR.Contexts;
-using HR.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace HR.Repositoreies
@@ -24,6 +23,12 @@ namespace HR.Repositoreies
             return await _context.Departments.Where(d => d.IsActive).FirstOrDefaultAsync(d => d.DepartmentId == id);
         }
 
+        public async Task<IEnumerable<Department>> GetDeletedDepartmentsAsync()
+        {
+            return await _context.Departments
+                .Where(d => !d.IsActive)
+                .ToListAsync();
+        }
         public async Task AddDepartmentAsync(Department department)
         {
             await _context.Departments.AddAsync(department);
