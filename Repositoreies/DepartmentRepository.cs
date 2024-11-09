@@ -13,9 +13,12 @@ namespace HR.Repositoreies
             _context = context;
         }
 
-        public async Task<IEnumerable<Department>> GetAllDepartmentsAsync()
+        public async Task<IEnumerable<Department>> GetAllDepartmentsAsync(int pageNumber, int pageSize)
         {
-            return await _context.Departments.Where(d => d.IsActive).ToListAsync();
+            return await _context.Departments
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
         }
 
         public async Task<Department> GetDepartmentByIdAsync(int id)

@@ -1,44 +1,65 @@
 ﻿using AutoMapper;
 using Domain;
 using Domain.dto.Profiles;
-using HR.DTOs.SalaryTierDTOs;
 using HR.Repositoreies;
 using HR.Services;
+using HR.ViewModels;
+using HR.ViewModels.DTOs.SalaryTierDTOs;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace HR.Controllers
 {
     [ApiController]
-    [Route("api/Salary-Tier")]
+    [Route("api/[controller]")]
     public class SalaryTierController : ControllerBase
     {
-        private readonly Repositoreies.ISalaryTierRepository _salaryTierRepository;
+        private readonly ISalaryTierRepository _salaryTierRepository;
         private readonly IValidationService _validationService;
+        private readonly ILogger<SalaryTierController> _logger;
         private readonly IMapper _mapper;
 
         public SalaryTierController(
-            Repositoreies.ISalaryTierRepository salaryTierRepository,
+            ISalaryTierRepository salaryTierRepository,
             IValidationService validationService,
+            ILogger<SalaryTierController> logger,
             IMapper mapper
         )
         {
             _salaryTierRepository = salaryTierRepository;
             _validationService = validationService;
+            _logger = logger;
             _mapper = mapper;
         }
 
-        // Get all salary tiers
         [HttpGet("Get-All")]
-        public async Task<ActionResult<IEnumerable<SalaryTierForPreview>>> GetAllSalaryTiers()
+        public async Task<ActionResult<IEnumerable<SalaryTierForPreview>>> GetAllSalaryTiers(int pageNumber = 1, int pageSize = 10)
         {
-            var salaryTiers = await _salaryTierRepository.GetAllSalaryTiersAsync();
-            var salaryTierDtos = _mapper.Map<IEnumerable<SalaryTierForPreview>>(salaryTiers);
-            return Ok(salaryTierDtos);
+            try
+            {
+                var salaryTiers = await _salaryTierRepository.GetAllSalaryTiersAsync(pageNumber, pageSize);
+
+                if (salaryTiers == null || !salaryTiers.Any())
+                {
+                    _logger.LogWarning("No salary tiers found.");
+                    return NotFound("No salary tiers found.");
+                }
+
+                var salaryTierDtos = _mapper.Map<IEnumerable<SalaryTierForPreview>>(salaryTiers);
+
+   
+                return Ok(salaryTierDtos);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while getting salary tiers.");
+                return StatusCode(500, "Internal server error.");
+            }
         }
 
-        // Get salary tier by ID
+
         [HttpGet("Get/{id}")]
         public async Task<ActionResult<SalaryTierForPreview>> GetSalaryTierById(int id)
         {
@@ -64,21 +85,17 @@ namespace HR.Controllers
             }
 
             var salaryTierDtos = _mapper.Map<IEnumerable<SalaryTierForPreview>>(salaryTiers);
-
             return Ok(salaryTierDtos);
         }
 
-        // Get deleted salary tiers
         [HttpGet("Get-Deleted-SalaryTiers")]
         public async Task<ActionResult<IEnumerable<SalaryTierForPreview>>> GetDeletedSalaryTiers()
         {
             var deletedSalaryTiers = await _salaryTierRepository.GetDeletedSalaryTiersAsync();
-
             var deletedSalaryTierDtos = _mapper.Map<IEnumerable<SalaryTierForPreview>>(deletedSalaryTiers);
             return Ok(deletedSalaryTierDtos);
         }
 
-        // Add a new salary tier
         [HttpPost("Add")]
         public async Task<IActionResult> AddSalaryTier([FromBody] SalaryTierForAdd salaryTierDto)
         {
@@ -91,10 +108,9 @@ namespace HR.Controllers
             await _salaryTierRepository.AddSalaryTierAsync(salaryTier);
 
             var salaryTierForPreview = _mapper.Map<SalaryTierForPreview>(salaryTier);
-            return CreatedAtAction(nameof(GetSalaryTierById), new { id = salaryTier.SalaryTierId }, salaryTierForPreview);
+            return Ok(salaryTierForPreview);
         }
 
-        // Update an existing salary tier
         [HttpPut("Update/{id}")]
         public async Task<IActionResult> UpdateSalaryTier(int id, [FromBody] SalaryTierForUpdate salaryTierDto)
         {
@@ -109,22 +125,15 @@ namespace HR.Controllers
                 return NotFound("Salary tier not found.");
             }
 
-            // Map updated properties to the existing entity
             _mapper.Map(salaryTierDto, existingSalaryTier);
             await _salaryTierRepository.UpdateSalaryTierAsync(existingSalaryTier);
 
             return NoContent();
         }
 
-        // Delete a salary tier
         [HttpDelete("Delete/{id}")]
         public async Task<IActionResult> DeleteSalaryTier(int id)
         {
-            if (!_validationService.ValidateId(id, out string errorMessage))
-            {
-                return BadRequest(errorMessage);
-            }
-
             await _salaryTierRepository.DeleteSalaryTierAsync(id);
             return NoContent();
         }

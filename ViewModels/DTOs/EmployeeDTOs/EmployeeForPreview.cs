@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace HR.DTOs.EmployeeDTOs
+namespace HR.ViewModels.DTOs.EmployeeDTOs
 {
     public class EmployeeForPreview
     {

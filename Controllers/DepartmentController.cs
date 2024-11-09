@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
 using Domain;
-using HR.DTOs.DepartmentDTOs;
 using HR.Repositoreies;
 using HR.Services;
+using HR.ViewModels;
+using HR.ViewModels.DTOs.DepartmentDTOs;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace HR.Controllers
@@ -15,29 +17,48 @@ namespace HR.Controllers
     {
         private readonly IDepartmentRepository _departmentRepository;
         private readonly IValidationService _validationService;
+        private readonly ILogger<DepartmentController> _logger;
         private readonly IMapper _mapper;
 
         public DepartmentController(
             IDepartmentRepository departmentRepository,
             IValidationService validationService,
+            ILogger<DepartmentController> logger,
             IMapper mapper
         )
         {
             _departmentRepository = departmentRepository;
             _validationService = validationService;
+            _logger = logger;
             _mapper = mapper;
         }
 
-        // Get all departments
         [HttpGet("Get-All")]
-        public async Task<ActionResult<IEnumerable<DepartmentForPreview>>> GetAllDepartments()
+        public async Task<ActionResult<IEnumerable<DepartmentForPreview>>> GetAllDepartments(int pageNumber = 1, int pageSize = 10)
         {
-            var departments = await _departmentRepository.GetAllDepartmentsAsync();
-            var departmentDtos = _mapper.Map<IEnumerable<DepartmentForPreview>>(departments);
-            return Ok(departmentDtos);
+            try
+            {
+                var departments = await _departmentRepository.GetAllDepartmentsAsync(pageNumber, pageSize);
+
+                if (departments == null || !departments.Any())
+                {
+                    _logger.LogWarning("No departments found.");
+                    return NotFound("No departments found.");
+                }
+
+                var departmentDtos = _mapper.Map<IEnumerable<DepartmentForPreview>>(departments);
+
+
+                return Ok(departmentDtos);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while getting departments.");
+                return StatusCode(500, "Internal server error.");
+            }
         }
 
-        // Get department by ID
+
         [HttpGet("Get/{id}")]
         public async Task<ActionResult<DepartmentForPreview>> GetDepartmentById(int id)
         {
@@ -53,18 +74,14 @@ namespace HR.Controllers
             return Ok(departmentDto);
         }
 
-        // Get deleted departments
         [HttpGet("Get-Deleted-Departments")]
-        public async Task<ActionResult<Department>> GetDeletedDepartments()
+        public async Task<ActionResult<IEnumerable<DepartmentForPreview>>> GetDeletedDepartments()
         {
             var deletedDepartments = await _departmentRepository.GetDeletedDepartmentsAsync();
-            var departmentDto = _mapper.Map<IEnumerable<DepartmentForPreview>>(deletedDepartments);
-
-
-            return Ok(departmentDto);
+            var departmentDtos = _mapper.Map<IEnumerable<DepartmentForPreview>>(deletedDepartments);
+            return Ok(departmentDtos);
         }
 
-        // Add a new department
         [HttpPost("Add")]
         public async Task<IActionResult> AddDepartment([FromBody] DepartmentForAdd departmentDto)
         {
@@ -77,10 +94,9 @@ namespace HR.Controllers
             await _departmentRepository.AddDepartmentAsync(department);
 
             var departmentForPreview = _mapper.Map<DepartmentForPreview>(department);
-            return CreatedAtAction(nameof(GetDepartmentById), new { id = department.DepartmentId }, departmentForPreview);
+            return Ok(departmentForPreview);
         }
 
-        // Update an existing department
         [HttpPut("Update/{id}")]
         public async Task<IActionResult> UpdateDepartment(int id, [FromBody] DepartmentForUpdate departmentDto)
         {
@@ -95,22 +111,15 @@ namespace HR.Controllers
                 return NotFound("Department not found.");
             }
 
-            // Map updated properties to the existing entity
             _mapper.Map(departmentDto, existingDepartment);
             await _departmentRepository.UpdateDepartmentAsync(existingDepartment);
 
             return NoContent();
         }
 
-        // Delete a department
         [HttpDelete("Delete/{id}")]
         public async Task<IActionResult> DeleteDepartment(int id)
         {
-            if (!_validationService.ValidateId(id, out string errorMessage))
-            {
-                return BadRequest(errorMessage);
-            }
-
             await _departmentRepository.DeleteDepartmentAsync(id);
             return NoContent();
         }

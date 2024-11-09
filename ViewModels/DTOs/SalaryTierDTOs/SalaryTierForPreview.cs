@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace HR.DTOs.SalaryTierDTOs
+namespace HR.ViewModels.DTOs.SalaryTierDTOs
 {
     public class SalaryTierForPreview
     {

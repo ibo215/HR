@@ -1,4 +1,4 @@
-﻿namespace HR.DTOs.EmployeeDTOs
+﻿namespace HR.ViewModels.DTOs.EmployeeDTOs
 {
     public class EmployeeForUpdate
     {

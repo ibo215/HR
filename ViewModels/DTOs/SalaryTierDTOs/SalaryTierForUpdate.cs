@@ -1,4 +1,4 @@
-﻿namespace HR.DTOs.SalaryTierDTOs
+﻿namespace HR.ViewModels.DTOs.SalaryTierDTOs
 {
     public class SalaryTierForUpdate
     {

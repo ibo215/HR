@@ -5,7 +5,7 @@ namespace HR.Repositoreies
 {
     public interface IEmployeeRepository
     {
-        Task<IEnumerable<Employee>> GetAllEmployeesAsync();
+        Task<IEnumerable<Employee>> GetAllEmployeesAsync(int pageNumber, int pageSize);
         Task<Employee> GetEmployeeByIdAsync(int id);
         Task<IEnumerable<Employee>> GetDeletedEmployeesAsync();
         Task AddEmployeeAsync(Employee employee);

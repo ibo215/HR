@@ -1,6 +1,6 @@
 ﻿using Domain;
 using HR.Contexts;
-using HR.DTOs.SalaryTierDTOs;
+//using HR.DTOs.SalaryTierDTOs;
 using Microsoft.EntityFrameworkCore;
 
 namespace HR.Repositoreies
@@ -14,9 +14,12 @@ namespace HR.Repositoreies
             _context = context;
         }
 
-        public async Task<IEnumerable<SalaryTier>> GetAllSalaryTiersAsync()
+        public async Task<IEnumerable<SalaryTier>> GetAllSalaryTiersAsync(int pageNumber, int pageSize)
         {
-            return await _context.SalaryTiers.Where(t => t.IsActive).ToListAsync();
+            return await _context.SalaryTiers
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
         }
 
         public async Task<SalaryTier> GetSalaryTierByIdAsync(int id)

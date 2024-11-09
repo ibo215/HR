@@ -6,7 +6,7 @@ using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
+builder.Services.AddLogging();
 
 Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Debug()

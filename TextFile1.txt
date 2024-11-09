@@ -93,42 +93,73 @@ Employee
 
 ==========================
 
-// Get deleted departments
-[HttpGet("Get-Deleted-Departments")]
-public async Task<ActionResult<IEnumerable<Department>>> GetDeletedDepartments()
-{
-    var deletedDepartments = await _context.Departments
-        .Where(d => !d.IsActive)
-        .ToListAsync();
-    
-    return Ok(deletedDepartments);
-}
+==========================
+ p@ssw0rd123!
+==========================
+ [HttpGet("Get-All")]
+        public async Task<ActionResult<IEnumerable<EmployeeForPreview>>> GetAllEmployees()
+        {
+            try
+            {
+                var employees = await _employeeRepository.GetAllEmployeesAsync();
 
-==========================
-// Get deleted salary tiers
-[HttpGet("Get-Deleted-SalaryTiers")]
-public async Task<ActionResult<IEnumerable<SalaryTierForPreview>>> GetDeletedSalaryTiers()
-{
-    var deletedSalaryTiers = await _context.SalaryTiers
-        .Where(st => !st.IsActive)
-        .ToListAsync();
+                if (employees == null || !employees.Any())
+                {
+                    _logger.LogWarning("No employees found.");
+                    return NotFound("No employees found.");
+                }
 
-    var deletedSalaryTierDtos = _mapper.Map<IEnumerable<SalaryTierForPreview>>(deletedSalaryTiers);
-    return Ok(deletedSalaryTierDtos);
-}
+                var employeeDtos = _mapper.Map<IEnumerable<EmployeeForPreview>>(employees);
+                return Ok(employeeDtos);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while getting employees.");
+                return StatusCode(500, "Internal server error.");
+            }
+        }
 
-==========================
-// Get deleted employees
-[HttpGet("Get-Deleted-Employees")]
-public async Task<ActionResult<IEnumerable<Employee>>> GetDeletedEmployees()
-{
-    var deletedEmployees = await _context.Employees
-        .Where(e => !e.IsActive)
-        .ToListAsync();
-    
-    return Ok(deletedEmployees);
-}
+           [HttpGet("Get-All")]
+        public async Task<ActionResult<IEnumerable<DepartmentForPreview>>> GetAllDepartments()
+        {
+            try
+            {
+                var departments = await _departmentRepository.GetAllDepartmentsAsync();
 
-==========================
-==========================
-==========================
+                if (departments == null || !departments.Any())
+                {
+                    _logger.LogWarning("No departments found.");
+                    return NotFound("No departments found.");
+                }
+
+                var departmentDtos = _mapper.Map<IEnumerable<DepartmentForPreview>>(departments);
+                return Ok(departmentDtos);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while getting departments.");
+                return StatusCode(500, "Internal server error.");
+            }
+        }
+          [HttpGet("Get-All")]
+        public async Task<ActionResult<IEnumerable<SalaryTierForPreview>>> GetAllSalaryTiers()
+        {
+            try
+            {
+                var salaryTiers = await _salaryTierRepository.GetAllSalaryTiersAsync();
+
+                if (salaryTiers == null || !salaryTiers.Any())
+                {
+                    _logger.LogWarning("No salary tiers found.");
+                    return NotFound("No salary tiers found.");
+                }
+
+                var salaryTierDtos = _mapper.Map<IEnumerable<SalaryTierForPreview>>(salaryTiers);
+                return Ok(salaryTierDtos);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while getting salary tiers.");
+                return StatusCode(500, "Internal server error.");
+            }
+        }

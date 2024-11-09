@@ -13,14 +13,17 @@ namespace HR.Repositoreies
             _context = context;
         }
 
-        public async Task<IEnumerable<Employee>> GetAllEmployeesAsync()
+        public async Task<IEnumerable<Employee>> GetAllEmployeesAsync(int pageNumber, int pageSize)
         {
             return await _context.Employees
                 .Where(e => e.IsActive)
                 .Include(e => e.Department)
                 .Include(e => e.SalaryTier)
+                .Skip((pageNumber - 1) * pageSize) 
+                .Take(pageSize) 
                 .ToListAsync();
         }
+
 
         public async Task<Employee> GetEmployeeByIdAsync(int id)
         {

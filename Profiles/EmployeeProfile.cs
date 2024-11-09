@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using HR.DTOs.EmployeeDTOs;
+using HR.ViewModels.DTOs.EmployeeDTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;

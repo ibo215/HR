@@ -1,4 +1,4 @@
-﻿namespace HR.DTOs.DepartmentDTOs
+﻿namespace HR.ViewModels.DTOs.DepartmentDTOs
 {
     public class DepartmentForUpdate
     {

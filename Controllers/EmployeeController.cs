@@ -1,11 +1,14 @@
 ﻿using AutoMapper;
 using Domain;
 using Domain.dto.Profiles;
-using HR.DTOs.EmployeeDTOs;
 using HR.Repositoreies;
 using HR.Services;
+using HR.ViewModels;
+using HR.ViewModels.DTOs.EmployeeDTOs;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using System.Text.Json;
 
 namespace HR.Controllers
 {
@@ -15,29 +18,49 @@ namespace HR.Controllers
     {
         private readonly IEmployeeRepository _employeeRepository;
         private readonly IValidationService _validationService;
+        private readonly ILogger _logger;
         private readonly IMapper _mapper;
 
         public EmployeeController(
             IEmployeeRepository employeeRepository,
             IValidationService validationService,
+            ILogger<EmployeeController> logger,
             IMapper mapper
             )
         {
             _employeeRepository = employeeRepository;
             _validationService = validationService;
+            _logger = logger;
             _mapper = mapper;
         }
 
 
         [HttpGet("Get-All")]
-        public async Task<ActionResult<IEnumerable<EmployeeForPreview>>> GetAllEmployees()
+        public async Task<ActionResult<IEnumerable<EmployeeForPreview>>> GetAllEmployees(int pageNumber = 1, int pageSize = 10)
         {
-            var employees = await _employeeRepository.GetAllEmployeesAsync();
-            var employeeDtos = _mapper.Map<IEnumerable<EmployeeForPreview>>(employees);
-            return Ok(employeeDtos);
+            try
+            {
+
+                var employees = await _employeeRepository.GetAllEmployeesAsync(pageNumber, pageSize);
+
+                if (employees == null || !employees.Any())
+                {
+                    _logger.LogWarning("No employees found.");
+                    return NotFound("No employees found.");
+                }
+
+                var employeeDtos = _mapper.Map<IEnumerable<EmployeeForPreview>>(employees);
+
+                return Ok(employeeDtos);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while getting employees.");
+                return StatusCode(500, "Internal server error.");
+            }
         }
 
- 
+
         [HttpGet("Get/{id}")]
         public async Task<ActionResult<EmployeeForPreview>> GetEmployeeById(int id)
         {

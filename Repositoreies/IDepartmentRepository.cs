@@ -4,7 +4,7 @@ namespace HR.Repositoreies
 {
     public interface IDepartmentRepository
     {
-        Task<IEnumerable<Department>> GetAllDepartmentsAsync();
+        Task<IEnumerable<Department>> GetAllDepartmentsAsync(int pageNumber = 1, int pageSize = 10);
         Task<Department> GetDepartmentByIdAsync(int id);
         Task<IEnumerable<Department>> GetDeletedDepartmentsAsync();
         Task AddDepartmentAsync(Department department);
