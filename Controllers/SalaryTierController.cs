@@ -5,6 +5,7 @@ using HR.Repositoreies;
 using HR.Services;
 using HR.ViewModels;
 using HR.ViewModels.DTOs.SalaryTierDTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Text.Json;
@@ -14,6 +15,7 @@ namespace HR.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    //[Authorize]
     public class SalaryTierController : ControllerBase
     {
         private readonly ISalaryTierRepository _salaryTierRepository;

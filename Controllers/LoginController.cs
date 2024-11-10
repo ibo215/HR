@@ -30,9 +30,6 @@ namespace HR.Controllers
             var secretKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_configuration["Authentcation:secretkey"]));
             var signingCred = new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha256);
 
-            //
-            //
-            //
             var securityToken = new JwtSecurityToken(
                 issuer: _configuration["Authentcation:issuer"],
                 audience: _configuration["Authentcation:audience"],
