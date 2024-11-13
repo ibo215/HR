@@ -1,5 +1,7 @@
 ﻿using Domain;
 using HR.Contexts;
+using HR.ViewModels;
+
 //using HR.DTOs.SalaryTierDTOs;
 using Microsoft.EntityFrameworkCore;
 
@@ -28,10 +30,46 @@ namespace HR.Repositoreies
         }
 
 
-        public async Task<IEnumerable<SalaryTier>> GetSalaryReportAsync()
-        {
-            return await _context.SalaryTiers.ToListAsync();
-        }
+        //public async Task<IEnumerable<SalaryTier>> GetSalaryReportAsync()
+        //{
+        //    return await _context.SalaryTiers.ToListAsync();
+        //}
+        //public async Task<IEnumerable<SalaryTiersReport>> GetReportSalaryTierAsync()
+        //{
+        //    try
+        //    {
+        //        var salaryTiers = await _context.SalaryTiers
+        //            .Include(st => st.Employees)
+        //                .ThenInclude(e => e.Department)
+        //            .ToListAsync();
+
+        //        var salaryTiersReports = salaryTiers.Select(st => new SalaryTiersReport
+        //        {
+        //            TierName = st.TierName,
+        //            BaseSalary = st.BaseSalary,
+        //            Bonus = st.Bonus,
+        //            EmployeeCount = st.Employees.Count,
+        //            TotalSalary = st.Employees.Sum(e => st.BaseSalary + st.Bonus),
+
+        //            DepartmentTotalSalaries = st.Employees
+        //                .GroupBy(e => e.Department.DepartmentId)
+        //                .Select(g => new DepartmentSalaryInfo
+        //                {
+        //                    DepartmentName = g.First().Department.DepartmetnName,
+        //                    TotalDepartmentSalary = g.Sum(e => st.BaseSalary + st.Bonus)
+        //                })
+        //                .ToList()
+        //        }).ToList();
+
+        //        return salaryTiersReports;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _logger.LogCritical(ex, "Error occurred in SalaryTiersRepository in GetReportSalaryTierAsync method");
+        //        return Enumerable.Empty<SalaryTiersReportResponse>();
+        //    }
+        //}
+
         public async Task<IEnumerable<SalaryTier>> GetDeletedSalaryTiersAsync()
         {
             return await _context.SalaryTiers
@@ -59,6 +97,19 @@ namespace HR.Repositoreies
                 salaryTier.IsActive = false;
                  await _context.SaveChangesAsync();
             }
+        }
+        public async Task<IEnumerable<SalaryTier>> GetAllActiveSalaryTiersAsync()
+        {
+            return await _context.SalaryTiers
+                .Where(st => st.IsActive) 
+                .Include(st => st.Employees)
+                .ThenInclude(e => e.Department)   
+                .ToListAsync();
+        }
+
+        public Task<IEnumerable<SalaryTier>> GetSalaryReportAsync()
+        {
+            throw new NotImplementedException();
         }
     }
 

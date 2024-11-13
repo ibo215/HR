@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Domain;
 using HR.ViewModels.DTOs.DepartmentDTOs;
 using System;
 using System.Collections.Generic;
@@ -7,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
-namespace Domain.dto.Profiles
+namespace HR.ViewModels.Profiles
 {
     public class DepartmentProfile : Profile
     {

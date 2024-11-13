@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Domain;
 using HR.ViewModels.DTOs.EmployeeDTOs;
 using System;
 using System.Collections.Generic;
@@ -6,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Domain.dto.Profiles
+namespace HR.ViewModels.Profiles
 {
     public class EmployeeProfile : Profile
     {

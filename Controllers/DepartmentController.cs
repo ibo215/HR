@@ -4,6 +4,7 @@ using HR.Repositoreies;
 using HR.Services;
 using HR.ViewModels;
 using HR.ViewModels.DTOs.DepartmentDTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Text.Json;
@@ -15,41 +16,28 @@ namespace HR.Controllers
     [Route("api/[controller]")]
     public class DepartmentController : ControllerBase
     {
-        private readonly IDepartmentRepository _departmentRepository;
-        private readonly IValidationService _validationService;
+        private readonly IDepartmentService _departmentService;
         private readonly ILogger<DepartmentController> _logger;
-        private readonly IMapper _mapper;
 
-        public DepartmentController(
-            IDepartmentRepository departmentRepository,
-            IValidationService validationService,
-            ILogger<DepartmentController> logger,
-            IMapper mapper
-        )
+        public DepartmentController(IDepartmentService departmentService, ILogger<DepartmentController> logger)
         {
-            _departmentRepository = departmentRepository;
-            _validationService = validationService;
+            _departmentService = departmentService;
             _logger = logger;
-            _mapper = mapper;
         }
 
+        [Authorize]
         [HttpGet("Get-All")]
         public async Task<ActionResult<IEnumerable<DepartmentForPreview>>> GetAllDepartments(int pageNumber = 1, int pageSize = 10)
         {
             try
             {
-                var departments = await _departmentRepository.GetAllDepartmentsAsync(pageNumber, pageSize);
-
-                if (departments == null || !departments.Any())
+                var departments = await _departmentService.GetAllDepartmentsAsync(pageNumber, pageSize);
+                if (!departments.Any())
                 {
                     _logger.LogWarning("No departments found.");
                     return NotFound("No departments found.");
                 }
-
-                var departmentDtos = _mapper.Map<IEnumerable<DepartmentForPreview>>(departments);
-
-
-                return Ok(departmentDtos);
+                return Ok(departments);
             }
             catch (Exception ex)
             {
@@ -58,71 +46,84 @@ namespace HR.Controllers
             }
         }
 
-
         [HttpGet("Get/{id}")]
         public async Task<ActionResult<DepartmentForPreview>> GetDepartmentById(int id)
         {
-            if (!_validationService.ValidateId(id, out string errorMessage))
+            try
             {
-                return BadRequest(errorMessage);
+                var department = await _departmentService.GetDepartmentByIdAsync(id);
+                if (department == null) return NotFound("Department not found.");
+                return Ok(department);
             }
-
-            var department = await _departmentRepository.GetDepartmentByIdAsync(id);
-            if (department == null) return NotFound("Department not found.");
-
-            var departmentDto = _mapper.Map<DepartmentForPreview>(department);
-            return Ok(departmentDto);
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while getting the department.");
+                return StatusCode(500, "Internal server error.");
+            }
         }
 
         [HttpGet("Get-Deleted-Departments")]
         public async Task<ActionResult<IEnumerable<DepartmentForPreview>>> GetDeletedDepartments()
         {
-            var deletedDepartments = await _departmentRepository.GetDeletedDepartmentsAsync();
-            var departmentDtos = _mapper.Map<IEnumerable<DepartmentForPreview>>(deletedDepartments);
-            return Ok(departmentDtos);
+            try
+            {
+                var departments = await _departmentService.GetDeletedDepartmentsAsync();
+                return Ok(departments);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while getting deleted departments.");
+                return StatusCode(500, "Internal server error.");
+            }
         }
 
         [HttpPost("Add")]
         public async Task<IActionResult> AddDepartment([FromBody] DepartmentForAdd departmentDto)
         {
-            if (!_validationService.ValidateCreate(departmentDto, out string errorMessage))
+            try
             {
-                return BadRequest(errorMessage);
+                var department = await _departmentService.AddDepartmentAsync(departmentDto);
+                return Ok(department);
             }
-
-            var department = _mapper.Map<Department>(departmentDto);
-            await _departmentRepository.AddDepartmentAsync(department);
-
-            var departmentForPreview = _mapper.Map<DepartmentForPreview>(department);
-            return Ok(departmentForPreview);
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while adding the department.");
+                return StatusCode(500, "Internal server error.");
+            }
         }
 
         [HttpPut("Update/{id}")]
         public async Task<IActionResult> UpdateDepartment(int id, [FromBody] DepartmentForUpdate departmentDto)
         {
-            if (!_validationService.ValidateUpdate(id, departmentDto, out string errorMessage))
+            try
             {
-                return BadRequest(errorMessage);
+                await _departmentService.UpdateDepartmentAsync(id, departmentDto);
+                return NoContent();
             }
-
-            var existingDepartment = await _departmentRepository.GetDepartmentByIdAsync(id);
-            if (existingDepartment == null)
+            catch (KeyNotFoundException)
             {
                 return NotFound("Department not found.");
             }
-
-            _mapper.Map(departmentDto, existingDepartment);
-            await _departmentRepository.UpdateDepartmentAsync(existingDepartment);
-
-            return NoContent();
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while updating the department.");
+                return StatusCode(500, "Internal server error.");
+            }
         }
 
         [HttpDelete("Delete/{id}")]
         public async Task<IActionResult> DeleteDepartment(int id)
         {
-            await _departmentRepository.DeleteDepartmentAsync(id);
-            return NoContent();
+            try
+            {
+                await _departmentService.DeleteDepartmentAsync(id);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while deleting the department.");
+                return StatusCode(500, "Internal server error.");
+            }
         }
     }
-
 }

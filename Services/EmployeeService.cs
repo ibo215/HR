@@ -48,8 +48,8 @@ namespace HR.Services
             var existingEmployee = await _employeeRepository.GetEmployeeByIdAsync(id);
             if (existingEmployee == null) throw new KeyNotFoundException("Employee not found.");
 
-            _mapper.Map(employeeDto, existingEmployee);
-            await _employeeRepository.UpdateEmployeeAsync(existingEmployee);
+            //_mapper.Map(employeeDto, existingEmployee);
+            await _employeeRepository.UpdateEmployeeAsync(_mapper.Map(employeeDto, existingEmployee));
         }
 
         public async Task DeleteEmployeeAsync(int id)

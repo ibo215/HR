@@ -1,4 +1,5 @@
 ﻿using Domain;
+using HR.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace HR.Contexts
@@ -13,6 +14,8 @@ namespace HR.Contexts
         public DbSet<Employee> Employees { get; set; }
         public DbSet<Department> Departments { get; set; }
         public DbSet<SalaryTier> SalaryTiers { get; set; }
+        public DbSet<Account> Accounts { get; set; }
+        
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -36,6 +39,10 @@ namespace HR.Contexts
                 new Employee { EmployeeId = 2, Name = "Bob Johnson", Position = "Software Developer", IsActive = true, DepartmentId = 2, SalaryTierId = 1 },
                 new Employee { EmployeeId = 3, Name = "Charlie Brown", Position = "Finance Analyst", IsActive = true, DepartmentId = 3, SalaryTierId = 2 },
                 new Employee { EmployeeId = 4, Name = "Diana Prince", Position = "Senior Developer", IsActive = true, DepartmentId = 2, SalaryTierId = 3 }
+            );
+            modelBuilder.Entity<Account>().HasData(
+                new Account { Id = 1, Email = "mashal200315@gmail.om", PasswordHash = "123", UserName = "ibo", FirstName = "ibrahim", LastName = "mashal", Roles = new List<string>() }
+                
             );
         }
 

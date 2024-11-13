@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using Domain;
-using Domain.dto.Profiles;
+
 using HR.Repositoreies;
 using HR.Services;
 using HR.ViewModels;
@@ -218,10 +218,7 @@ namespace HR.Controllers
                 await _employeeService.UpdateEmployeeAsync(id, employeeDto);
                 return NoContent();
             }
-            catch (KeyNotFoundException)
-            {
-                return NotFound("Employee not found.");
-            }
+            
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occurred while updating the employee.");

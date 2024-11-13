@@ -11,6 +11,8 @@ namespace HR.Repositoreies
         Task AddSalaryTierAsync(SalaryTier salaryTier);
         Task UpdateSalaryTierAsync(SalaryTier salaryTier);
         Task DeleteSalaryTierAsync(int id);
+        Task<IEnumerable<SalaryTier>> GetAllActiveSalaryTiersAsync();
+       
     }
 
 }

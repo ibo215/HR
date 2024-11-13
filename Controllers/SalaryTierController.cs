@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using Domain;
-using Domain.dto.Profiles;
+//using Domain.dto.Profiles;
 using HR.Repositoreies;
 using HR.Services;
 using HR.ViewModels;
@@ -15,25 +15,15 @@ namespace HR.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    //[Authorize]
     public class SalaryTierController : ControllerBase
     {
-        private readonly ISalaryTierRepository _salaryTierRepository;
-        private readonly IValidationService _validationService;
+        private readonly ISalaryTierService _salaryTierService;
         private readonly ILogger<SalaryTierController> _logger;
-        private readonly IMapper _mapper;
 
-        public SalaryTierController(
-            ISalaryTierRepository salaryTierRepository,
-            IValidationService validationService,
-            ILogger<SalaryTierController> logger,
-            IMapper mapper
-        )
+        public SalaryTierController(ISalaryTierService salaryTierService, ILogger<SalaryTierController> logger)
         {
-            _salaryTierRepository = salaryTierRepository;
-            _validationService = validationService;
+            _salaryTierService = salaryTierService;
             _logger = logger;
-            _mapper = mapper;
         }
 
         [HttpGet("Get-All")]
@@ -41,18 +31,13 @@ namespace HR.Controllers
         {
             try
             {
-                var salaryTiers = await _salaryTierRepository.GetAllSalaryTiersAsync(pageNumber, pageSize);
-
-                if (salaryTiers == null || !salaryTiers.Any())
+                var salaryTiers = await _salaryTierService.GetAllSalaryTiersAsync(pageNumber, pageSize);
+                if (!salaryTiers.Any())
                 {
                     _logger.LogWarning("No salary tiers found.");
                     return NotFound("No salary tiers found.");
                 }
-
-                var salaryTierDtos = _mapper.Map<IEnumerable<SalaryTierForPreview>>(salaryTiers);
-
-   
-                return Ok(salaryTierDtos);
+                return Ok(salaryTiers);
             }
             catch (Exception ex)
             {
@@ -61,84 +46,96 @@ namespace HR.Controllers
             }
         }
 
-
         [HttpGet("Get/{id}")]
         public async Task<ActionResult<SalaryTierForPreview>> GetSalaryTierById(int id)
         {
-            if (!_validationService.ValidateId(id, out string errorMessage))
+            try
             {
-                return BadRequest(errorMessage);
+                var salaryTier = await _salaryTierService.GetSalaryTierByIdAsync(id);
+                if (salaryTier == null) return NotFound("Salary tier not found.");
+                return Ok(salaryTier);
             }
-
-            var salaryTier = await _salaryTierRepository.GetSalaryTierByIdAsync(id);
-            if (salaryTier == null) return NotFound("Salary tier not found.");
-
-            var salaryTierDto = _mapper.Map<SalaryTierForPreview>(salaryTier);
-            return Ok(salaryTierDto);
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while getting the salary tier.");
+                return StatusCode(500, "Internal server error.");
+            }
         }
 
-        [HttpGet("Get-Salary-Report")]
-        public async Task<ActionResult<IEnumerable<SalaryTierForPreview>>> GetSalaryReport()
-        {
-            var salaryTiers = await _salaryTierRepository.GetSalaryReportAsync();
-            if (salaryTiers == null || !salaryTiers.Any())
-            {
-                return NotFound("No salary data found.");
-            }
-
-            var salaryTierDtos = _mapper.Map<IEnumerable<SalaryTierForPreview>>(salaryTiers);
-            return Ok(salaryTierDtos);
-        }
-
-        [HttpGet("Get-Deleted-SalaryTiers")]
+        [HttpGet("Get-Deleted-Salary-Tiers")]
         public async Task<ActionResult<IEnumerable<SalaryTierForPreview>>> GetDeletedSalaryTiers()
         {
-            var deletedSalaryTiers = await _salaryTierRepository.GetDeletedSalaryTiersAsync();
-            var deletedSalaryTierDtos = _mapper.Map<IEnumerable<SalaryTierForPreview>>(deletedSalaryTiers);
-            return Ok(deletedSalaryTierDtos);
+            try
+            {
+                var deletedSalaryTiers = await _salaryTierService.GetDeletedSalaryTiersAsync();
+                return Ok(deletedSalaryTiers);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while getting deleted salary tiers.");
+                return StatusCode(500, "Internal server error.");
+            }
         }
+
+        [HttpGet("Get-Salary-Tier-Report")]
+        public async Task<IActionResult> GetSalaryTierReport()
+        {
+            try
+            {
+                var report = await _salaryTierService.GetReportSalaryTierAsync();
+                return Ok(report);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while generating the salary tier report.");
+                return StatusCode(500, "Internal server error occurred while generating the salary tier report.");
+            }
+        }
+
 
         [HttpPost("Add")]
         public async Task<IActionResult> AddSalaryTier([FromBody] SalaryTierForAdd salaryTierDto)
         {
-            if (!_validationService.ValidateCreate(salaryTierDto, out string errorMessage))
+            try
             {
-                return BadRequest(errorMessage);
+                var salaryTier = await _salaryTierService.AddSalaryTierAsync(salaryTierDto);
+                return Ok(salaryTier);
             }
-
-            var salaryTier = _mapper.Map<SalaryTier>(salaryTierDto);
-            await _salaryTierRepository.AddSalaryTierAsync(salaryTier);
-
-            var salaryTierForPreview = _mapper.Map<SalaryTierForPreview>(salaryTier);
-            return Ok(salaryTierForPreview);
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while adding the salary tier.");
+                return StatusCode(500, "Internal server error.");
+            }
         }
 
         [HttpPut("Update/{id}")]
         public async Task<IActionResult> UpdateSalaryTier(int id, [FromBody] SalaryTierForUpdate salaryTierDto)
         {
-            if (!_validationService.ValidateUpdate(id, salaryTierDto, out string errorMessage))
+            try
             {
-                return BadRequest(errorMessage);
+                await _salaryTierService.UpdateSalaryTierAsync(id, salaryTierDto);
+                return NoContent();
             }
-
-            var existingSalaryTier = await _salaryTierRepository.GetSalaryTierByIdAsync(id);
-            if (existingSalaryTier == null)
+            catch (Exception ex)
             {
-                return NotFound("Salary tier not found.");
+                _logger.LogError(ex, "An error occurred while updating the salary tier.");
+                return StatusCode(500, "Internal server error.");
             }
-
-            _mapper.Map(salaryTierDto, existingSalaryTier);
-            await _salaryTierRepository.UpdateSalaryTierAsync(existingSalaryTier);
-
-            return NoContent();
         }
 
         [HttpDelete("Delete/{id}")]
         public async Task<IActionResult> DeleteSalaryTier(int id)
         {
-            await _salaryTierRepository.DeleteSalaryTierAsync(id);
-            return NoContent();
+            try
+            {
+                await _salaryTierService.DeleteSalaryTierAsync(id);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while deleting the salary tier.");
+                return StatusCode(500, "Internal server error.");
+            }
         }
     }
-
 }

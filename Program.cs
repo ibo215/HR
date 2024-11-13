@@ -25,17 +25,21 @@ Log.Logger = new LoggerConfiguration()
 //Mappre
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
-//Services
+//Repository
 builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
 builder.Services.AddScoped<IDepartmentRepository, DepartmentRepository>();
 builder.Services.AddScoped<ISalaryTierRepository, SalaryTierRepository>();
+
+//Service
 builder.Services.AddScoped<IEmployeeService, EmployeeService>();
 builder.Services.AddScoped<IDepartmentService, DepartmentService>();
-
-//IDepartmentService
-
+builder.Services.AddScoped<ISalaryTierService, SalaryTierService>();
 builder.Services.AddScoped<IValidationService, ValidationService>();
+builder.Services.AddScoped<IAccountRepository, AccountRepository>();
+builder.Services.AddScoped<IAccountService, AccountService>();
 
+//LoginService
+// 
 
 
 builder.Services.AddDbContext<HRContext>(
@@ -51,13 +55,29 @@ builder.Services.AddAuthentication().AddJwtBearer(Options =>
     {
         ValidIssuer = builder.Configuration["Authentication:issuer"],
         ValidAudience = builder.Configuration["Authentication:audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(builder.Configuration["Authentcation:secretkey"])),
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(builder.Configuration["Authentication:secretkey"])),
 
         ValidateIssuer = true,
         ValidateAudience = true,
+        ValidateLifetime = true,
         ValidateIssuerSigningKey = true
     };
 });
+//builder.Services.AddAuthentication().AddJwtBearer(options =>
+//{
+//    options.TokenValidationParameters = new TokenValidationParameters
+//    {
+//        ValidIssuer = builder.Configuration["Authentication:issuer"],
+//        ValidAudience = builder.Configuration["Authentication:audience"],
+//        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(builder.Configuration["Authentication:secretkey"])),
+
+//        ValidateIssuer = true,
+//        ValidateAudience = true,
+//        ValidateLifetime = true,
+//        ValidateIssuerSigningKey = true
+//    };
+//});
+
 
 
 builder.Services.AddControllers();
@@ -75,8 +95,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseAuthorization();
 
+app.UseAuthentication();
+app.UseAuthorization();
 
 
 app.MapControllers();

@@ -1,11 +1,48 @@
+loinservice
+add search endpoint
+
+
+
+=============================================
+Account.cs ( 
+public class Account
+    {
+        public int Id { get; set; }
+        public string UserName { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public string Email { get; set; }
+        public List<string> Roles { get; set; }
+    }
+ )
+AccountDTOs(
+AccountProfile,
+AccountForUpdate
+AccountForPreview
+AccountForAdd
+AccountValidation(
+To ensure that the entered data does not contain any hacking attempts 
+or anything of the sort.)
+)
+AccountRepository
+IAccountRepository
+AccountService
+AccountIService
+AccountController(
+CRUD
+login(require:username, Password),
+logout(require:username, Password),
+regisert-new Account-(require:username, Password, Email),
+DeleteMyAccount(require: username, Password, Email)
+)
+Make sure to encrypt your password and username before storing them.
+=============================================
 DepartmentProfile
 EmployeeProfile
 SalaryTierProfile
 
 ISalaryTierRepository
 IDepartmentRepository
-
-
 
 =============
 
