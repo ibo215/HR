@@ -1,5 +1,6 @@
 ﻿using Domain;
 using HR.Contexts;
+using HR.ViewModels.DTOs.EmployeeDTOs;
 using Microsoft.EntityFrameworkCore;
 
 namespace HR.Repositoreies
@@ -61,6 +62,14 @@ namespace HR.Repositoreies
             }
         }
 
+        public async Task<IEnumerable<Employee>> SearchEmployeesAsync(string name)
+        {
+            var employees = await _context.Set<Employee>()
+                .Where(e => e.Name.Contains(name))  
+                .ToListAsync();
+
+            return employees;
         }
+    }
 
 }

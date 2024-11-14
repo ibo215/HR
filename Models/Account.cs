@@ -9,7 +9,6 @@
         public string LastName { get; set; }
         public string Email { get; set; }
         public bool IsActive { get; set; } = true;
-        public List<string> Roles { get; set; } = new List<string>();
     }
 
 }

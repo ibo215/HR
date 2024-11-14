@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 namespace HR.Controllers
 {
     [ApiController]
+    [Authorize]
     [Route("api/[controller]")]
     public class SalaryTierController : ControllerBase
     {
@@ -62,6 +63,7 @@ namespace HR.Controllers
             }
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpGet("Get-Deleted-Salary-Tiers")]
         public async Task<ActionResult<IEnumerable<SalaryTierForPreview>>> GetDeletedSalaryTiers()
         {

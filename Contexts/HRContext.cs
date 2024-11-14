@@ -41,7 +41,7 @@ namespace HR.Contexts
                 new Employee { EmployeeId = 4, Name = "Diana Prince", Position = "Senior Developer", IsActive = true, DepartmentId = 2, SalaryTierId = 3 }
             );
             modelBuilder.Entity<Account>().HasData(
-                new Account { Id = 1, Email = "mashal200315@gmail.om", PasswordHash = "123", UserName = "ibo", FirstName = "ibrahim", LastName = "mashal", Roles = new List<string>() }
+                new Account { Id = 1, Email = "mashal200315@gmail.om", PasswordHash = "123", UserName = "ibo", FirstName = "ibrahim", LastName = "mashal" }
                 
             );
         }

@@ -32,12 +32,23 @@ namespace HR.Services
 
         public async Task<string> RegisterAccountAsync(AccountForAdd accountDto)
         {
+            var existingAccount = await _accountRepository.GetByUserNameAsync(accountDto.UserName);
+            if (existingAccount != null)
+            {
+                throw new ArgumentException("Username already exists.");
+            }
+
+            if (string.IsNullOrWhiteSpace(accountDto.Password))
+            {
+                throw new ArgumentException("Password cannot be empty.");
+            }
+
             var account = _mapper.Map<Account>(accountDto);
             account.PasswordHash = HashPassword(accountDto.Password);
+
             await _accountRepository.AddAccountAsync(account);
 
-            // Generate JWT Token for the new user
-            var token = GenerateJwtToken(_mapper.Map<AccountForPreview>(account));
+            var token = GenerateJwtToken(account);
             return token;
         }
 
@@ -54,11 +65,10 @@ namespace HR.Services
                 throw new UnauthorizedAccessException("Incorrect password.");
             }
 
-            // Generate JWT Token upon successful login
-            var token = GenerateJwtToken(_mapper.Map<AccountForPreview>(account));
+
+            var token = GenerateJwtToken(account);
             return token;
         }
-
 
         public async Task DeleteMyAccountAsync(string username, string password)
         {
@@ -81,18 +91,22 @@ namespace HR.Services
             return BCrypt.Net.BCrypt.Verify(password, hashedPassword);
         }
 
-        private string GenerateJwtToken(AccountForPreview account)
+        private string GenerateJwtToken(Account account)
         {
             var secretKey = new SymmetricSecurityKey(
-                Encoding.ASCII.GetBytes("asjhfkjsabfjsdaabfjsnadfskdfknnsdafsdkfjsjdakf"));
+                Encoding.ASCII.GetBytes(_configuration["Authentication:secretkey"]));
             var signingCred = new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha256);
 
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, account.UserName),
                 new Claim(ClaimTypes.NameIdentifier, account.Id.ToString())
-                // You can add more claims here if needed, e.g., roles or permissions
             };
+
+            if (account.UserName.ToLower() == _configuration["Admin:UserName"].ToLower())
+            {
+                claims.Add(new Claim(ClaimTypes.Role, "Admin"));
+            }
 
             var securityToken = new JwtSecurityToken(
                 issuer: _configuration["Authentication:issuer"],

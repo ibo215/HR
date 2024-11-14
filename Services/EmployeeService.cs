@@ -11,7 +11,10 @@ namespace HR.Services
         private readonly IMapper _mapper;
         private readonly IValidationService _validationService;
 
-        public EmployeeService(IEmployeeRepository employeeRepository, IMapper mapper, IValidationService validationService)
+        public EmployeeService(
+            IEmployeeRepository employeeRepository, 
+            IMapper mapper, 
+            IValidationService validationService)
         {
             _employeeRepository = employeeRepository;
             _mapper = mapper;
@@ -55,6 +58,13 @@ namespace HR.Services
         public async Task DeleteEmployeeAsync(int id)
         {
             await _employeeRepository.DeleteEmployeeAsync(id);
+        }
+
+        public async Task<IEnumerable<EmployeeForPreview>> SearchEmployeesAsync(string name)
+        {
+            var employees = await _employeeRepository.SearchEmployeesAsync(name);
+
+            return _mapper.Map<IEnumerable<EmployeeForPreview>>(employees);
         }
     }
 }

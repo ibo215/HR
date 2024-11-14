@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 namespace HR.Controllers
 {
     [ApiController]
+    [Authorize]
     [Route("api/[controller]")]
     public class DepartmentController : ControllerBase
     {
@@ -62,6 +63,7 @@ namespace HR.Controllers
             }
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpGet("Get-Deleted-Departments")]
         public async Task<ActionResult<IEnumerable<DepartmentForPreview>>> GetDeletedDepartments()
         {

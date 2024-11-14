@@ -29,17 +29,18 @@ namespace HR.Controllers
         }
 
         [HttpPost("Login")]
-        public async Task<IActionResult> Login(string username, string password)
+        public async Task<IActionResult> Login(LoginRequest loginReq)
         {
-            var account = await _accountService.LoginAsync(username, password);
+            //string username, string password
+            var account = await _accountService.LoginAsync(loginReq.Username, loginReq.Password);
             return Ok(account);
         }
 
 
         [HttpDelete("DeleteMyAccount")]
-        public async Task<IActionResult> DeleteMyAccount(string username, string password)
+        public async Task<IActionResult> DeleteMyAccount(LoginRequest loginReq)
         {
-            await _accountService.DeleteMyAccountAsync(username, password);
+            await _accountService.DeleteMyAccountAsync(loginReq.Username, loginReq.Password);
             return Ok("Account deleted successfully.");
         }
     }
