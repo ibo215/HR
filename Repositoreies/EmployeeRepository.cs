@@ -28,11 +28,13 @@ namespace HR.Repositoreies
 
         public async Task<Employee> GetEmployeeByIdAsync(int id)
         {
-            return await _context.Employees
+            var emp =  await _context.Employees
                 .Where(e => e.IsActive)
                 .Include(e => e.Department)
                 .Include(e => e.SalaryTier)
                 .FirstOrDefaultAsync(e => e.EmployeeId == id);
+
+            return emp;
         }
         public async Task<IEnumerable<Employee>> GetDeletedEmployeesAsync()
         {
@@ -65,11 +67,14 @@ namespace HR.Repositoreies
         public async Task<IEnumerable<Employee>> SearchEmployeesAsync(string name)
         {
             var employees = await _context.Set<Employee>()
-                .Where(e => e.Name.Contains(name))  
-                .ToListAsync();
+                .Where(e => e.Name.Contains(name)) 
+                .Include(e => e.SalaryTier)       
+                .Include(e => e.Department)      
+                .ToListAsync();                  
 
-            return employees;
+            return employees; 
         }
+
     }
 
 }

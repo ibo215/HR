@@ -20,51 +20,31 @@ namespace HR.Controllers
     public class EmployeeController : ControllerBase
     {
         private readonly IEmployeeService _employeeService;
-        private readonly ILogger _logger;
 
         public EmployeeController(IEmployeeService employeeService, ILogger<EmployeeController> logger)
         {
             _employeeService = employeeService;
-            _logger = logger;
         }
 
         [HttpGet("Get-All")]
         public async Task<ActionResult<IEnumerable<EmployeeForPreview>>> GetAllEmployees(int pageNumber = 1, int pageSize = 10)
         {
-            try
-            {
-                var employees = await _employeeService.GetAllEmployeesAsync(pageNumber, pageSize);
+         
+            var employees = await _employeeService.GetAllEmployeesAsync(pageNumber, pageSize);
 
-                if (!employees.Any())
-                {
-                    _logger.LogWarning("No employees found.");
-                    return NotFound("No employees found.");
-                }
+            if (!employees.Any()) return NotFound("No employees found.");
+               
+            return Ok(employees);
 
-                return Ok(employees);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "An error occurred while getting employees.");
-                return StatusCode(500, "Internal server error.");
-            }
         }
 
         [HttpGet("Get/{id}")]
         public async Task<ActionResult<EmployeeForPreview>> GetEmployeeById(int id)
         {
-            try
-            {
-                var employee = await _employeeService.GetEmployeeByIdAsync(id);
-                if (employee == null) return NotFound("Employee not found.");
+            var employee = await _employeeService.GetEmployeeByIdAsync(id);
+            if (employee == null) return NotFound("Employee not found.");
 
-                return Ok(employee);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "An error occurred while getting the employee.");
-                return StatusCode(500, "Internal server error.");
-            }
+            return Ok(employee);
         }
 
         [Authorize(Roles = "Admin")]
@@ -85,47 +65,22 @@ namespace HR.Controllers
         [HttpPost("Add")]
         public async Task<IActionResult> AddEmployee([FromBody] EmployeeForAdd employeeDto)
         {
-            try
-            {
-                var employee = await _employeeService.AddEmployeeAsync(employeeDto);
-                return Ok(employee);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "An error occurred while adding the employee.");
-                return StatusCode(500, "Internal server error.");
-            }
+            var employee = await _employeeService.AddEmployeeAsync(employeeDto);
+            return Ok(employee);
         }
 
         [HttpPut("Update/{id}")]
         public async Task<IActionResult> UpdateEmployee(int id, [FromBody] EmployeeForUpdate employeeDto)
         {
-            try
-            {
-                await _employeeService.UpdateEmployeeAsync(id, employeeDto);
-                return NoContent();
-            }
-            
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "An error occurred while updating the employee.");
-                return StatusCode(500, "Internal server error.");
-            }
+            await _employeeService.UpdateEmployeeAsync(id, employeeDto);
+            return NoContent();
         }
 
         [HttpDelete("Delete/{id}")]
         public async Task<IActionResult> DeleteEmployee(int id)
         {
-            try
-            {
-                await _employeeService.DeleteEmployeeAsync(id);
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "An error occurred while deleting the employee.");
-                return StatusCode(500, "Internal server error.");
-            }
+            await _employeeService.DeleteEmployeeAsync(id);
+            return NoContent();  
         }
     }
 

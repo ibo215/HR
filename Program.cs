@@ -1,4 +1,5 @@
 using HR.Contexts;
+using HR.Middlewares;
 using HR.Repositoreies;
 using HR.Services;
 using Microsoft.EntityFrameworkCore;
@@ -17,8 +18,6 @@ Log.Logger = new LoggerConfiguration()
                 rollingInterval: RollingInterval.Day
                 ) // path, rollingInterval(hour, day, nmonth, year, ...)
                 .CreateLogger();
-//C:\Users\zero\Desktop\HR Project\HR\Logs\
-
 
 // Add services to the container.
 
@@ -38,8 +37,7 @@ builder.Services.AddScoped<IValidationService, ValidationService>();
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 builder.Services.AddScoped<IAccountService, AccountService>();
 
-//LoginService
-// 
+ 
 
 
 builder.Services.AddDbContext<HRContext>(
@@ -63,20 +61,7 @@ builder.Services.AddAuthentication().AddJwtBearer(Options =>
         ValidateIssuerSigningKey = true
     };
 });
-//builder.Services.AddAuthentication().AddJwtBearer(options =>
-//{
-//    options.TokenValidationParameters = new TokenValidationParameters
-//    {
-//        ValidIssuer = builder.Configuration["Authentication:issuer"],
-//        ValidAudience = builder.Configuration["Authentication:audience"],
-//        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(builder.Configuration["Authentication:secretkey"])),
 
-//        ValidateIssuer = true,
-//        ValidateAudience = true,
-//        ValidateLifetime = true,
-//        ValidateIssuerSigningKey = true
-//    };
-//});
 
 
 
@@ -95,6 +80,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseMiddleware<ErrorHandlingMiddleware>();
 
 app.UseAuthentication();
 app.UseAuthorization();

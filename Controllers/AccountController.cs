@@ -31,7 +31,6 @@ namespace HR.Controllers
         [HttpPost("Login")]
         public async Task<IActionResult> Login(LoginRequest loginReq)
         {
-            //string username, string password
             var account = await _accountService.LoginAsync(loginReq.Username, loginReq.Password);
             return Ok(account);
         }
