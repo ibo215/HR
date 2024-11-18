@@ -11,7 +11,7 @@ namespace Domain
     {
         public int DepartmentId { get; set; }
         public string DepartmentName { get; set; }
-        public bool IsActive { get; set; } = true;
+        public bool InActive { get; set; } = true;
 
         [JsonIgnore]
         public ICollection<Employee> Employees { get; set; }

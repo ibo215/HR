@@ -129,13 +129,13 @@ namespace HR.Services
             }
         }
 
-        public async Task<IEnumerable<EmployeeForPreview>> SearchEmployeesAsync(string name)
+        public async Task<IEnumerable<EmployeeInfo>> SearchEmployeesAsync(string name)
         {
             try
             {
                 _logger.LogInformation("Searching employees with name containing: {Name}", name);
-                var employees = await _employeeRepository.SearchEmployeesAsync(name);
-                return _mapper.Map<IEnumerable<EmployeeForPreview>>(employees);
+                
+                return await _employeeRepository.SearchEmployeesAsync(name);
             }
             catch (Exception ex)
             {

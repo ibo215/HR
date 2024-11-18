@@ -11,7 +11,7 @@ namespace Domain
         public int SalaryTierId { get; set; }
         public string TierName { get; set; }
         public decimal SalaryAmount { get; set; }
-        public bool IsActive { get; set; } = true;
+        public bool InActive { get; set; } = true;
 
 
         public ICollection<Employee> Employees { get; set; }

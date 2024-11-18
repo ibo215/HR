@@ -36,7 +36,7 @@ namespace HR.Repositoreies
             var account = await _context.Accounts.FindAsync(id);
             if (account != null)
             {
-                account.IsActive = false;
+                account.InActive = false;
                 await _context.SaveChangesAsync();
             }
         }
@@ -44,7 +44,7 @@ namespace HR.Repositoreies
         public async Task<Account> GetByIdAsync(int id)
         {
             return await _context.Accounts
-                .Where(a => a.IsActive)
+                .Where(a => a.InActive)
                 .FirstOrDefaultAsync(a => a.Id == id);
         }
       

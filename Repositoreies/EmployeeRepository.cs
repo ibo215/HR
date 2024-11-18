@@ -17,7 +17,7 @@ namespace HR.Repositoreies
         public async Task<IEnumerable<Employee>> GetAllEmployeesAsync(int pageNumber, int pageSize)
         {
             return await _context.Employees
-                .Where(e => e.IsActive)
+                .Where(e => e.InActive)
                 .Include(e => e.Department)
                 .Include(e => e.SalaryTier)
                 .Skip((pageNumber - 1) * pageSize) 
@@ -29,7 +29,7 @@ namespace HR.Repositoreies
         public async Task<Employee> GetEmployeeByIdAsync(int id)
         {
             var emp =  await _context.Employees
-                .Where(e => e.IsActive)
+                .Where(e => e.InActive)
                 .Include(e => e.Department)
                 .Include(e => e.SalaryTier)
                 .FirstOrDefaultAsync(e => e.EmployeeId == id);
@@ -39,7 +39,7 @@ namespace HR.Repositoreies
         public async Task<IEnumerable<Employee>> GetDeletedEmployeesAsync()
         {
             return await _context.Employees
-                .Where(e => !e.IsActive)
+                .Where(e => !e.InActive)
                 .ToListAsync();
         }
         public async Task AddEmployeeAsync(Employee employee)
@@ -59,21 +59,32 @@ namespace HR.Repositoreies
             var employee = await _context.Employees.FindAsync(id);
             if (employee != null)
             {
-                employee.IsActive = false;
+                employee.InActive = false;
                 await _context.SaveChangesAsync();
             }
         }
 
-        public async Task<IEnumerable<Employee>> SearchEmployeesAsync(string name)
+        public async Task<IEnumerable<EmployeeInfo>> SearchEmployeesAsync(string name)
         {
             var employees = await _context.Set<Employee>()
-                .Where(e => e.Name.Contains(name)) 
-                .Include(e => e.SalaryTier)       
-                .Include(e => e.Department)      
-                .ToListAsync();                  
+                .Where(e => e.Name.Contains(name))
+                .Include(e => e.SalaryTier)
+                .Include(e => e.Department)
+                .Select(e => new EmployeeInfo
+                {
+                    EmployeeId = e.EmployeeId,
+                    Name = e.Name,
+                    Position = e.Position,
+                    DepartmentName = e.Department.DepartmentName,
+                    SalaryTierName = e.SalaryTier.TierName,
+                    SalaryTierAmount = e.SalaryTier.SalaryAmount
+                })
+                .ToListAsync();
 
-            return employees; 
+            return employees;
         }
+
+
 
     }
 

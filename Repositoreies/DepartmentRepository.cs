@@ -23,13 +23,13 @@ namespace HR.Repositoreies
 
         public async Task<Department> GetDepartmentByIdAsync(int id)
         {
-            return await _context.Departments.Where(d => d.IsActive).FirstOrDefaultAsync(d => d.DepartmentId == id);
+            return await _context.Departments.Where(d => d.InActive).FirstOrDefaultAsync(d => d.DepartmentId == id);
         }
 
         public async Task<IEnumerable<Department>> GetDeletedDepartmentsAsync()
         {
             return await _context.Departments
-                .Where(d => !d.IsActive)
+                .Where(d => !d.InActive)
                 .ToListAsync();
         }
         public async Task AddDepartmentAsync(Department department)
@@ -49,7 +49,7 @@ namespace HR.Repositoreies
             var department = await _context.Departments.FindAsync(id);
             if (department != null)
             {
-                department.IsActive = false;
+                department.InActive = false;
                   await _context.SaveChangesAsync();
             }
         }

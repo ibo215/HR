@@ -26,7 +26,7 @@ namespace HR.Repositoreies
 
         public async Task<SalaryTier> GetSalaryTierByIdAsync(int id)
         {
-            return await _context.SalaryTiers.Where(t => t.IsActive).FirstOrDefaultAsync(t =>t.SalaryTierId == id);
+            return await _context.SalaryTiers.Where(t => t.InActive).FirstOrDefaultAsync(t =>t.SalaryTierId == id);
         }
 
 
@@ -73,7 +73,7 @@ namespace HR.Repositoreies
         public async Task<IEnumerable<SalaryTier>> GetDeletedSalaryTiersAsync()
         {
             return await _context.SalaryTiers
-                .Where(st => !st.IsActive)
+                .Where(st => !st.InActive)
                 .ToListAsync();
         }
 
@@ -94,14 +94,14 @@ namespace HR.Repositoreies
             var salaryTier = await _context.SalaryTiers.FindAsync(id);
             if (salaryTier != null)
             {
-                salaryTier.IsActive = false;
+                salaryTier.InActive = false;
                  await _context.SaveChangesAsync();
             }
         }
         public async Task<IEnumerable<SalaryTier>> GetAllActiveSalaryTiersAsync()
         {
             return await _context.SalaryTiers
-                .Where(st => st.IsActive) 
+                .Where(st => st.InActive) 
                 .Include(st => st.Employees)
                 .ThenInclude(e => e.Department)   
                 .ToListAsync();

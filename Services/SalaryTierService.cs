@@ -144,12 +144,12 @@ namespace HR.Services
                 {
                     TierName = st.TierName,
                     SalaryAmount = st.SalaryAmount,
-                    EmployeeCount = st.Employees.Count(e => e.IsActive),
+                    EmployeeCount = st.Employees.Count(e => e.InActive),
                     TotalSalary = st.Employees
-                        .Where(e => e.IsActive)
+                        .Where(e => e.InActive)
                         .Sum(e => st.SalaryAmount),
                     DepartmentInfo = st.Employees
-                        .Where(e => e.IsActive && e.Department?.IsActive == true)
+                        .Where(e => e.InActive && e.Department?.InActive == true)
                         .Select(e => e.Department)
                         .Distinct()
                         .Select(d => new DepartmentForPreview
